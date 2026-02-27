@@ -21,7 +21,30 @@ class SoinController extends BaseController {
     public function index() {
         $date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
         $soins = $this->soinModel->findByDate($date);
-        $data = array('soins' => $soins);
+        
+        // Calculer les statistiques pour les cartes
+        $today = date('Y-m-d');
+        $statsToday = $this->soinModel->getStatsByDate($today);
+        $statsAll = $this->soinModel->getStats();
+        
+        // Compter les soins à venir - utiliser getProchainsSoins et compter
+        try {
+            $prochainsSoins = $this->soinModel->getProchainsSoins(1000);
+            $upcomingCount = 0;
+            if($prochainsSoins) {
+                $upcomingCount = $prochainsSoins->rowCount();
+            }
+        } catch(\Exception $e) {
+            $upcomingCount = 0;
+        }
+        
+        $data = array(
+            'soins' => $soins,
+            'date' => $date,
+            'statsToday' => $statsToday ? $statsToday : array('total' => 0, 'planifies' => 0, 'en_cours' => 0, 'effectues' => 0, 'annules' => 0),
+            'statsAll' => $statsAll ? $statsAll : array('total' => 0, 'planifies' => 0, 'en_cours' => 0, 'effectues' => 0, 'annules' => 0),
+            'upcomingCount' => $upcomingCount
+        );
         $this->renderWithLayout('soins/index', $data);
     }
 

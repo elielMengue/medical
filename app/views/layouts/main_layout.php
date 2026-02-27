@@ -44,23 +44,47 @@ if(isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Médicale</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body { font-family: 'Inter', sans-serif; }
+        /* Background pattern pour la zone de contenu */
+        .content-bg {
+            background: linear-gradient(180deg, #E0F2FE 0%, #F0F9FF 100%);
+            position: relative;
         }
-        
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        .content-bg::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50 Q25 30 50 50 T100 50 L100 100 L0 100 Z' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            background-repeat: repeat-x;
+            opacity: 0.5;
         }
-        
-        /* STYLE POUR LA PAGE DE CONNEXION */
+        /* Dégradés pour les cartes */
+        .card-gradient-purple {
+            background: linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%);
+        }
+        .card-gradient-green {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        }
+        .card-gradient-blue-green {
+            background: linear-gradient(135deg, #A5F3FC 0%, #67E8F9 100%);
+        }
+        .card-gradient-pink {
+            background: linear-gradient(135deg, #FCE7F3 0%, #FBCFE8 100%);
+        }
+        /* Login page background overlay */
         <?php if($isLoginPage): ?>
         body {
             background-image: url('/projet_medical/app/public/assets/images/background-logue.jpg');
@@ -72,7 +96,6 @@ if(isset($_SESSION['user_id'])) {
             align-items: center;
             justify-content: center;
         }
-        
         body::before {
             content: '';
             position: fixed;
@@ -83,7 +106,6 @@ if(isset($_SESSION['user_id'])) {
             background: rgba(15, 23, 42, 0.5);
             z-index: 0;
         }
-        
         .login-wrapper {
             position: relative;
             z-index: 1;
@@ -93,512 +115,298 @@ if(isset($_SESSION['user_id'])) {
             align-items: center;
             padding: 20px;
         }
-        <?php else: ?>
-        /* STYLE POUR LES AUTRES PAGES */
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-        
-        /* NAVBAR FIXE EN HAUT - IDENTIQUE SUR TOUTES LES PAGES */
-        .app-navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background: linear-gradient(135deg, #212529 0%, #343a40 100%) !important;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        
-        .app-navbar .navbar-brand {
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            font-size: 1.3rem !important;
-            font-weight: 600 !important;
-            margin: 0 auto !important;
-            text-align: center;
-            max-width: 80%;
-        }
-        
-        .app-navbar .navbar-brand i {
-            font-size: 1.8rem !important;
-            flex-shrink: 0;
-        }
-        
-        .app-navbar .navbar-brand span {
-            white-space: normal;
-            line-height: 1.3;
-        }
-        
-        /* TEXTE AVEC DÉGRADÉ - COULEURS FIXES */
-        .gradient-text {
-            background: linear-gradient(135deg, #4e73df, #1cc88a) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-            font-weight: 700 !important;
-        }
-        
-        /* Conteneur principal SOUS la navbar */
-        .main-container {
-            display: flex;
-            margin-top: 70px;
-            height: calc(100vh - 70px);
-        }
-        
-        /* Colonne de gauche - MENUS DÉROULANTS */
-        .sidebar {
-            width: 320px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-right: 1px solid #dee2e6;
-            overflow-y: auto;
-            padding: 0;
-            padding-bottom: 220px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-            position: relative;
-        }
-        
-        .sidebar-menu {
-            width: 100%;
-            border-collapse: collapse;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .sidebar-menu tr {
-            display: block;
-            margin-bottom: 5px;
-            background-color: #e6f0ff !important; /* Bleu très clair */
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-menu tr:hover {
-            background-color: #d1e0ff !important; /* Bleu un peu plus foncé au survol */
-            transform: translateX(5px);
-        }
-        
-        .sidebar-menu td {
-            padding: 0;
-            display: block;
-            width: 100%;
-        }
-        
-        /* MENUS EN BLEU CLAIR */
-        .menu-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            color: #0047b3 !important;
-            text-decoration: none;
-            border-left: 4px solid transparent;
-            cursor: pointer;
-            font-weight: 500;
-            background-color: transparent;
-            width: 100%;
-            border: none;
-        }
-        
-        .menu-item:hover {
-            background-color: #c2d9f0;
-            border-left-color: #0047b3;
-        }
-        
-        .menu-item i:first-child {
-            width: 24px;
-            margin-right: 10px;
-            font-size: 1.2rem;
-            color: #0047b3 !important;
-        }
-        
-        .menu-item .menu-title {
-            flex: 1;
-        }
-        
-        .menu-item .arrow {
-            transition: transform 0.3s ease;
-            color: #0047b3 !important;
-        }
-        
-        .menu-open .menu-item .arrow {
-            transform: rotate(90deg);
-        }
-        
-        .menu-item.active {
-            background-color: #b3d1ff !important;
-            border-left-color: #0047b3 !important;
-            color: #002b80 !important;
-            font-weight: 600;
-        }
-        
-        .menu-item.active i {
-            color: #002b80 !important;
-        }
-        
-        .submenu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background-color: #ffd9e6; /* Rose clair */
-        }
-        
-        .menu-open .submenu {
-            max-height: 500px;
-            transition: max-height 0.5s ease-in;
-        }
-        
-        .submenu-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 20px 10px 54px;
-            color: #b3005c !important; /* Rose foncé pour le texte */
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-        
-        .submenu-item:hover {
-            background-color: #ffc2d1 !important; /* Rose plus foncé au survol */
-            color: #99004d !important;
-            border-left-color: #ff66a3 !important;
-            transform: translateX(5px);
-        }
-        
-        .submenu-item i {
-            width: 20px;
-            margin-right: 10px;
-            font-size: 0.9rem;
-            color: #b3005c !important; /* Rose foncé pour les icônes */
-        }
-        
-        .submenu-item.active {
-            background-color: #ffb3c6 !important; /* Rose moyen pour l'élément actif */
-            color: #800040 !important;
-            font-weight: 500;
-            border-left-color: #ff4d94 !important;
-        }
-        
-        .submenu-item.active i {
-            color: #800040 !important;
-        }
-        
-        /* Séparateur pour les menus */
-        .menu-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #0047b3, transparent);
-            margin: 15px 20px;
-        }
-        
-        /* Style pour l'image dans le menu - FIXE EN BAS */
-        .menu-image {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            padding: 0 10px;
-            overflow: hidden;
-            z-index: 0;
-        }
-        
-        .menu-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: blur(2px);
-            transition: filter 0.3s ease;
-            border-radius: 10px;
-        }
-        
-        .menu-image img:hover {
-            filter: blur(0);
-        }
-        
-        /* Colonne de droite - CONTENU */
-        .content {
-            flex: 1;
-            background-image: url('/projet_medical/app/public/assets/images/background-log.jpg');
-            background-size: cover;
-            background-position: center;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            min-height: 100%;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
-                display: none;
-            }
-            
-            .content {
-                width: 100%;
-            }
-            
-            .app-navbar .navbar-brand {
-                font-size: 1rem !important;
-                max-width: 95%;
-            }
-        }
         <?php endif; ?>
     </style>
 </head>
-<body>
+<body class="bg-gray-50 h-screen overflow-hidden">
     <?php if($isLoginPage): ?>
         <!-- PAGE DE CONNEXION : UNIQUEMENT LE FORMULAIRE -->
         <div class="login-wrapper">
             <?php echo isset($content) ? $content : ''; ?>
         </div>
     <?php else: ?>
-        <!-- AUTRES PAGES : NAVBAR + MENUS + CONTENU -->
-        <!-- NAVBAR - IDENTIQUE SUR TOUTES LES PAGES -->
-        <div class="app-navbar">
-            <div class="navbar-brand">
-                <i class="bi bi-heart-pulse-fill gradient-text"></i>
-                <span class="gradient-text"><?php echo $navbarText; ?></span>
-            </div>
-        </div>
-
-        <!-- Conteneur principal avec 2 colonnes -->
-        <div class="main-container">
-            <!-- Colonne de gauche : Menus déroulants -->
-            <div class="sidebar">
-                <table class="sidebar-menu">
+        <div class="flex h-full">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-white border-r border-gray-200 flex flex-col rounded-r-2xl">
+                <!-- Logo et Header -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <!-- Logo hexagonale stylisée -->
+                        <div class="relative">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 2L32 8V18L20 24L8 18V8L20 2Z" fill="url(#gradient1)"/>
+                                <path d="M20 16L28 20V28L20 32L12 28V20L20 16Z" fill="url(#gradient2)"/>
+                                <defs>
+                                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                                    </linearGradient>
+                                    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">MediSphere</span>
+                    </div>
+                    <!-- Section Hôpital -->
                     <?php if(isset($_SESSION['user_id'])): ?>
-                        
-                        <!-- MENU ACCUEIL -->
-                        <tr>
-                            <td>
-                                <a href="index.php?controller=accueil&action=index" class="menu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'accueil') ? 'active' : ''; ?>">
-                                    <i class="bi bi-house-door"></i>
-                                    <span class="menu-title">Accueil</span>
-                                </a>
-                            </td>
-                        </tr>
-                        
-                        <!-- MENU GESTION DES PATIENTS - ADMIN A TOUS LES DROITS -->
-                        <?php if($_SESSION['user_role'] != 'infirmier' || $_SESSION['user_role'] == 'admin'): ?>
-                        <tr class="<?php echo isSectionOpen(array('patient')); ?>">
-                            <td>
-                                <div class="menu-item" onclick="toggleMenu(this)">
-                                    <i class="bi bi-people"></i>
-                                    <span class="menu-title">Gestion des patients</span>
-                                    <i class="bi bi-chevron-right arrow"></i>
-                                </div>
-                                <ul class="submenu">
-                                    
+                    <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <div class="flex-1">
+                                <div class="font-semibold text-gray-900 text-sm"><?php echo isset($navbarText) ? htmlspecialchars($navbarText) : 'Hôpital'; ?></div>
+                                <div class="text-xs text-gray-500 mt-0.5"><?php echo isset($_SESSION['user_service']) ? htmlspecialchars($_SESSION['user_service']) : ''; ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="flex-1 overflow-auto py-4 px-3">
+                    <ul class="space-y-1">
+                        <?php if(isset($_SESSION['user_id'])): ?>
+                            <!-- Patient Management -->
+                            <li class="mb-4">
+                                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Gestion des Patients</div>
+                                <ul class="space-y-1">
                                     <li>
-                                        <a href="index.php?controller=patient&action=search" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && $_GET['action'] == 'search') ? 'active' : ''; ?>">
-                                            <i class="bi bi-search"></i>
-                                            Rechercher patient
+                                        <a href="index.php?controller=accueil&action=index" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'accueil') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'accueil') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                            </svg>
+                                            Dashboard
                                         </a>
                                     </li>
-                                    <!-- ADMIN PEUT VOIR ET CREER DES PATIENTS -->
+                                    <?php if($_SESSION['user_role'] != 'infirmier' || $_SESSION['user_role'] == 'admin'): ?>
+                                    <li>
+                                        <a href="index.php?controller=soin&action=index" class="flex items-center px-3 py-2 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'index') ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'; ?> rounded-lg transition-colors">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'index') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            Appointments
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="index.php?controller=patient&action=search" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && isset($_GET['action']) && $_GET['action'] == 'search') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && isset($_GET['action']) && $_GET['action'] == 'search') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                            </svg>
+                                            Patients
+                                        </a>
+                                    </li>
                                     <?php if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'medecin' || $_SESSION['user_role'] == 'major'): ?>
                                     <li>
-                                        <a href="index.php?controller=patient&action=create" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && $_GET['action'] == 'create') ? 'active' : ''; ?>">
-                                            <i class="bi bi-person-plus"></i>
-                                            Nouveau patient
+                                        <a href="index.php?controller=patient&action=create" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'patient' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Medical Records
                                         </a>
                                     </li>
                                     <?php endif; ?>
+                                    <?php endif; ?>
                                 </ul>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <!-- MENU PLANNING DES SOINS -->
-                        <tr class="<?php echo isSectionOpen(array('soin')); ?>">
-                            <td>
-                                <div class="menu-item" onclick="toggleMenu(this)">
-                                    <i class="bi bi-calendar-heart"></i>
-                                    <span class="menu-title">Planning des soins</span>
-                                    <i class="bi bi-chevron-right arrow"></i>
-                                </div>
-                                <ul class="submenu">
-                                    <li>
-                                        <a href="index.php?controller=soin&action=index" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && $_GET['action'] == 'index') ? 'active' : ''; ?>">
-                                            <i class="bi bi-calendar-week"></i>
-                                            Planning général
-                                        </a>
-                                    </li>
+                            </li>
+
+                            <!-- Planning des soins -->
+                            <li class="mb-4">
+                                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Planning</div>
+                                <ul class="space-y-1">
                                     <?php if($_SESSION['user_role'] == 'infirmier'): ?>
                                     <li>
-                                        <a href="index.php?controller=soin&action=monPlanning" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && $_GET['action'] == 'monPlanning') ? 'active' : ''; ?>">
-                                            <i class="bi bi-person-workspace"></i>
+                                        <a href="index.php?controller=soin&action=monPlanning" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'monPlanning') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'monPlanning') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
                                             Mon planning
                                         </a>
                                     </li>
                                     <?php endif; ?>
-                                    <!-- ADMIN PEUT PLANIFIER DES SOINS -->
                                     <?php if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'major'): ?>
                                     <li>
-                                        <a href="index.php?controller=soin&action=create" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && $_GET['action'] == 'create') ? 'active' : ''; ?>">
-                                            <i class="bi bi-plus-circle"></i>
+                                        <a href="index.php?controller=soin&action=create" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'soin' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                            </svg>
                                             Planifier un soin
                                         </a>
                                     </li>
                                     <?php endif; ?>
                                 </ul>
-                            </td>
-                        </tr>
-                        
-                        <!-- MENU GESTION DES UTILISATEURS (admin seulement) -->
-                        <?php if($_SESSION['user_role'] == 'admin'): ?>
-                        <tr class="<?php echo isSectionOpen(array('admin')); ?>">
-                            <td>
-                                <div class="menu-item" onclick="toggleMenu(this)">
-                                    <i class="bi bi-people-fill"></i>
-                                    <span class="menu-title">Gestion des utilisateurs</span>
-                                    <i class="bi bi-chevron-right arrow"></i>
-                                </div>
-                                <ul class="submenu">
+                            </li>
+
+                            <!-- Staff Management -->
+                            <?php if($_SESSION['user_role'] == 'admin'): ?>
+                            <li class="mb-4">
+                                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Gestion du Personnel</div>
+                                <ul class="space-y-1">
                                     <li>
-                                        <a href="index.php?controller=admin&action=users" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && $_GET['action'] == 'users') ? 'active' : ''; ?>">
-                                            <i class="bi bi-list-ul"></i>
+                                        <a href="index.php?controller=admin&action=users" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'users') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'users') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            </svg>
                                             Liste utilisateurs
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="index.php?controller=admin&action=search" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && $_GET['action'] == 'search') ? 'active' : ''; ?>">
-                                            <i class="bi bi-search"></i>
+                                        <a href="index.php?controller=admin&action=search" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'search') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'search') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                            </svg>
                                             Rechercher
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="index.php?controller=admin&action=create" class="submenu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && $_GET['action'] == 'create') ? 'active' : ''; ?>">
-                                            <i class="bi bi-person-plus"></i>
+                                        <a href="index.php?controller=admin&action=create" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'admin' && isset($_GET['action']) && $_GET['action'] == 'create') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                            </svg>
                                             Nouvel utilisateur
                                         </a>
                                     </li>
                                 </ul>
-                            </td>
-                        </tr>
+                            </li>
+                            <?php endif; ?>
+
+                            <!-- Reports -->
+                            <?php if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'major'): ?>
+                            <li class="mb-4">
+                                <ul class="space-y-1">
+                                    <li>
+                                        <a href="index.php?controller=rapport&action=index" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'rapport') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'rapport') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                            </svg>
+                                            Reports
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <?php endif; ?>
+
+                            <!-- Other -->
+                            <li>
+                                <ul class="space-y-1">
+                                    <li>
+                                        <a href="index.php?controller=auth&action=profile" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'auth' && isset($_GET['action']) && $_GET['action'] == 'profile') ? 'bg-blue-50 text-blue-700 font-medium' : ''; ?>">
+                                            <svg class="w-5 h-5 mr-3 <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'auth' && isset($_GET['action']) && $_GET['action'] == 'profile') ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                            Mon profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            Settings
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        <?php else: ?>
+                            <li>
+                                <a href="index.php?controller=antecedent&action=index" class="flex items-center px-3 py-2 bg-blue-50 text-blue-700 font-medium rounded-lg">
+                                    <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                    </svg>
+                                    Accueil
+                                </a>
+                            </li>
+                            <li>
+                                <a href="index.php?controller=auth&action=loginForm" class="flex items-center px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                    </svg>
+                                    Connexion
+                                </a>
+                            </li>
                         <?php endif; ?>
-                        
-                        <!-- MENU GESTION DES RAPPORTS (admin et major) -->
-                        <?php if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'major'): ?>
-                        <tr>
-                            <td>
-                                <a href="index.php?controller=rapport&action=index" class="menu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'rapport') ? 'active' : ''; ?>">
-                                    <i class="bi bi-file-bar-graph"></i>
-                                    <span class="menu-title">Gestion des rapports</span>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
-                        
-                        <!-- SÉPARATEUR -->
-                        <tr>
-                            <td>
-                                <div class="menu-divider"></div>
-                            </td>
-                        </tr>
-                        
-                        <!-- MENU MON PROFIL -->
-                        <tr>
-                            <td>
-                                <a href="index.php?controller=auth&action=profile" class="menu-item <?php echo (isset($_GET['controller']) && $_GET['controller'] == 'auth' && $_GET['action'] == 'profile') ? 'active' : ''; ?>">
-                                    <i class="bi bi-person-circle"></i>
-                                    <span class="menu-title">Mon profil</span>
-                                </a>
-                            </td>
-                        </tr>
-                        
-                        
-                        
-                    <?php else: ?>
-                        <!-- Menu pour les non-connectés -->
-                        <tr>
-                            <td>
-                                <a href="index.php?controller=antecedent&action=index" class="menu-item active">
-                                    <i class="bi bi-house-door"></i>
-                                    <span class="menu-title">Accueil</span>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="index.php?controller=auth&action=loginForm" class="menu-item">
-                                    <i class="bi bi-box-arrow-in-right"></i>
-                                    <span class="menu-title">Connexion</span>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </table>
-                
-                <!-- IMAGE FLOUE FIXE EN BAS -->
-                <div class="menu-image">
-                    <img src="/projet_medical/app/public/assets/images/background-logue.jpg" 
-                         alt="Image médicale">
-                </div>
-            </div>
-            
-            <!-- Colonne de droite : Contenu -->
-            <div class="content">
-                <div class="content-card">
-                    <?php echo isset($content) ? $content : ''; ?>
-                </div>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Top Bar / Header -->
+                <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-bl-2xl">
+                    <div class="flex items-center space-x-4">
+                        <!-- Back button -->
+                        <button onclick="history.back()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <!-- Page Title -->
+                        <?php
+                        $pageTitle = "Dashboard";
+                        if(isset($_GET['controller'])) {
+                            $controller = $_GET['controller'];
+                            if($controller == 'soin') $pageTitle = "Appointments";
+                            elseif($controller == 'patient') $pageTitle = "Patients";
+                            elseif($controller == 'admin') $pageTitle = "Administration";
+                            elseif($controller == 'rapport') $pageTitle = "Reports";
+                            elseif($controller == 'auth') $pageTitle = "Profile";
+                            elseif($controller == 'accueil') $pageTitle = "Dashboard";
+                        }
+                        ?>
+                        <h1 class="text-2xl font-bold text-gray-900"><?php echo $pageTitle; ?></h1>
+                    </div>
+
+                    <!-- Global Search -->
+                    <div class="flex-1 max-w-md mx-8">
+                        <div class="relative">
+                            <input type="text" placeholder="Search Here..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications & Profile -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <button class="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <!-- User Profile -->
+                        <div class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors">
+                            <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gray-200">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-gray-900"><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Utilisateur'; ?></span>
+                                <span class="text-xs text-gray-500"><?php echo isset($_SESSION['user_role']) ? ucfirst(htmlspecialchars($_SESSION['user_role'])) : ''; ?></span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </header>
+                <!-- Main Content -->
+                <main class="flex-1 overflow-auto content-bg relative">
+                    <div class="p-6 relative z-10">
+                        <?php echo isset($content) ? $content : ''; ?>
+                    </div>
+                </main>
             </div>
         </div>
-
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        
         <script>
-            function toggleMenu(element) {
-                const parent = element.parentElement.parentElement;
-                parent.classList.toggle('menu-open');
+            function toggleMenu(button) {
+                const submenu = button.nextElementSibling;
+                if (submenu) submenu.classList.toggle('hidden');
             }
-            
-            document.addEventListener('DOMContentLoaded', function() {
-                const activeSubmenu = document.querySelector('.submenu-item.active');
-                if (activeSubmenu) {
-                    const parentMenu = activeSubmenu.closest('tr');
-                    if (parentMenu) {
-                        parentMenu.classList.add('menu-open');
-                    }
-                }
-            });
         </script>
     <?php endif; ?>
 </body>
