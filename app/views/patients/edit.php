@@ -1,9 +1,4 @@
 <?php
-
-echo "<!-- Fichier edit.php chargé -->";
-echo "<!-- Patient ID: " . $patient['id'] . " -->";
-echo "<!-- Patient Nom: " . $patient['nom'] . " -->";
-
 if(session_id() == '') {
     session_start();
 }
@@ -26,357 +21,149 @@ if(!isset($patient) || !$patient) {
     exit();
 }
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier un patient</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <style>
-        body { 
-            background-image: url('/projet_medical/app/public/assets/images/background-log.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            padding-bottom: 20px;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Conteneur du formulaire */
-        .form-container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        
-        /* En-tête du formulaire */
-       .page-header {
-    background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-    color: white;
-    padding: 25px 30px;
-    border-radius: 15px;
-    margin-bottom: 25px;
-    box-shadow: 0 15px 35px rgba(77, 158, 255, 0.3);
-    border: 2px solid #3d8eff;
-    position: relative;
-    overflow: hidden;
-}
 
-.page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-    transform: rotate(45deg);
-    animation: shimmer 3s infinite;
-}
-
-.table-header {
-    background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 15px 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(77, 158, 255, 0.2);
-}
-
-.table-header i {
-    margin-right: 10px;
-}
-        
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
-        }
-        
-        .page-header h1 {
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        /* Style pour le champ nom */
-        .nom-majuscule {
-            text-transform: uppercase;
-        }
-        
-        .nom-majuscule::placeholder {
-            text-transform: none;
-            color: #6c757d;
-        }
-        
-        /* Styles pour les inputs */
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-            padding: 12px;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #495057;
-            box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #212529;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-text {
-            color: #6c757d;
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-        }
-        
-        /* Style pour les boutons */
-        .btn {
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 12px 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #212529 0%, #343a40 100%);
-            border: none;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 37, 41, 0.3);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-            border: none;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
-        }
-        
-        /* Animation shimmer */
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-        
-        /* Effets de survol */
-        .hover-lift {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(33, 37, 41, 0.15);
-        }
-        
-        /* Texte dégradé */
-        .gradient-text {
-            background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Animation flottante */
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        /* Alertes */
-        .alert {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .alert-danger {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .form-container {
-                padding: 20px;
-            }
-        }
-        
-        /* Champ obligatoire */
-        .required:after {
-            content: " *";
-            color: #dc3545;
-        }
-    </style>
-</head>
-<body>
-    <!-- Inclusion de la navbar -->
+<!-- Form Card -->
+<div class="bg-white rounded-2xl shadow-lg p-6 max-w-3xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Modifier le patient</h2>
+        <p class="text-gray-600">Modifiez les informations ci-dessous</p>
+    </div>
     
+    <?php if(isset($_SESSION['errors']) && is_array($_SESSION['errors'])): ?>
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <h5 class="text-red-800 font-semibold mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Erreurs :
+            </h5>
+            <ul class="list-disc list-inside text-red-700 space-y-1">
+                <?php foreach($_SESSION['errors'] as $error): ?>
+                    <li><?php echo htmlspecialchars($error); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php unset($_SESSION['errors']); ?>
+    <?php endif; ?>
 
-    <div class="container">
-        <div class="form-container hover-lift">
-            <!-- En-tête -->
-            <div class="page-header">
-                <h1 class="mb-0 gradient-text">
-                    <i class="bi bi-pencil-square me-2 floating"></i> 
-                    Modifier le patient
-                </h1>
-                <p class="mb-0 mt-2">
-                    <i class="bi bi-pencil-square me-1"></i>
-                    Modifiez les informations ci-dessous
-                </p>
+    <form method="POST" action="index.php?controller=patient&action=update" class="space-y-6">
+        <input type="hidden" name="id" value="<?php echo $patient['id']; ?>">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nom <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="nom" name="nom" required 
+                       placeholder="Entrez le nom"
+                       value="<?php echo htmlspecialchars(strtoupper($patient['nom'])); ?>"
+                       oninput="this.value = this.value.toUpperCase()"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase">
             </div>
             
-            <?php if(isset($_SESSION['errors']) && is_array($_SESSION['errors'])): ?>
-                <div class="alert alert-danger">
-                    <h5><i class="bi bi-exclamation-triangle"></i> Erreurs :</h5>
-                    <ul class="mb-0">
-                        <?php foreach($_SESSION['errors'] as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-                <?php unset($_SESSION['errors']); ?>
-            <?php endif; ?>
-
-            <form method="POST" action="index.php?controller=patient&action=update">
-                <input type="hidden" name="id" value="<?php echo $patient['id']; ?>">
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg nom-majuscule hover-lift" id="nom" name="nom" required 
-                               placeholder="Entrez le nom"
-                               value="<?php echo htmlspecialchars(strtoupper($patient['nom'])); ?>"
-                               oninput="this.value = this.value.toUpperCase()">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="prenom" class="form-label">Prénom <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg hover-lift" id="prenom" name="prenom" required 
-                               placeholder="Entrez le prénom"
-                               value="<?php echo htmlspecialchars(ucfirst(strtolower($patient['prenom']))); ?>"
-                               oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()">
-                    </div>
-                </div>
-
-                <!-- CHAMP SEXE OBLIGATOIRE -->
-                <div class="mb-3">
-                    <label for="sexe" class="form-label">Sexe <span class="text-danger">*</span></label>
-                    <select class="form-select form-select-lg hover-lift" id="sexe" name="sexe" required>
-                        <option value="">Sélectionner le sexe</option>
-                        <option value="M" <?php echo (isset($patient['sexe']) && $patient['sexe'] == 'M') ? 'selected' : ''; ?>>Masculin</option>
-                        <option value="F" <?php echo (isset($patient['sexe']) && $patient['sexe'] == 'F') ? 'selected' : ''; ?>>Féminin</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="date_naissance" class="form-label">Date de naissance <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-lg hover-lift" id="date_naissance" name="date_naissance" required
-                           value="<?php echo $patient['date_naissance']; ?>">
-                </div>
-
-                <!-- Adresse -->
-                <div class="mb-3">
-                    <label for="adresse" class="form-label">Adresse</label>
-                    <textarea class="form-control form-control-lg hover-lift" id="adresse" name="adresse" rows="2" 
-                              placeholder="Numéro, rue, code postal, ville..."><?php echo isset($patient['adresse']) ? htmlspecialchars($patient['adresse']) : ''; ?></textarea>
-                    <div class="form-text">Optionnel</div>
-                </div>
-
-                <!-- Téléphone -->
-                <div class="mb-3">
-                    <label for="telephone" class="form-label">Téléphone</label>
-                    <input type="tel" class="form-control form-control-lg hover-lift" id="telephone" name="telephone" 
-                           placeholder="12 34 56 78"
-                           pattern="[0-9]{8}" 
-                           title="Le numéro doit contenir 8 chiffres"
-                           maxlength="8"
-                           value="<?php echo isset($patient['telephone']) ? htmlspecialchars($patient['telephone']) : ''; ?>">
-                    <div class="form-text">Optionnel - 8 chiffres</div>
-                </div>
-
-                <!-- GROUPE SANGUIN - NOUVEAU CHAMP -->
-                <div class="mb-3">
-                    <label for="groupe_sanguin" class="form-label">Groupe sanguin</label>
-                    <select class="form-select form-select-lg hover-lift" id="groupe_sanguin" name="groupe_sanguin">
-                        <option value="">Sélectionner un groupe sanguin</option>
-                        <option value="A+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'A+') ? 'selected' : ''; ?>>A+</option>
-                        <option value="A-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'A-') ? 'selected' : ''; ?>>A-</option>
-                        <option value="B+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'B+') ? 'selected' : ''; ?>>B+</option>
-                        <option value="B-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'B-') ? 'selected' : ''; ?>>B-</option>
-                        <option value="AB+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'AB+') ? 'selected' : ''; ?>>AB+</option>
-                        <option value="AB-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'AB-') ? 'selected' : ''; ?>>AB-</option>
-                        <option value="O+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'O+') ? 'selected' : ''; ?>>O+</option>
-                        <option value="O-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'O-') ? 'selected' : ''; ?>>O-</option>
-                    </select>
-                    <div class="form-text">Optionnel</div>
-                </div>
-
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> 
-                    Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.
-                </div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="index.php?controller=patient&action=show&id=<?php echo $patient['id']; ?>" class="btn btn-secondary btn-lg hover-lift">
-                        <i class="bi bi-arrow-left"></i> Annuler
-                    </a>
-                    <button type="submit" class="btn btn-primary btn-lg hover-lift">
-                        <i class="bi bi-save"></i> Mettre à jour
-                    </button>
-                </div>
-            </form>
+            <div>
+                <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+                    Prénom <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="prenom" name="prenom" required 
+                       placeholder="Entrez le prénom"
+                       value="<?php echo htmlspecialchars(ucfirst(strtolower($patient['prenom']))); ?>"
+                       oninput="this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById('telephone').addEventListener('input', function(e) {
+        <div>
+            <label for="sexe" class="block text-sm font-medium text-gray-700 mb-2">
+                Sexe <span class="text-red-500">*</span>
+            </label>
+            <select id="sexe" name="sexe" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Sélectionner le sexe</option>
+                <option value="M" <?php echo (isset($patient['sexe']) && $patient['sexe'] == 'M') ? 'selected' : ''; ?>>Masculin</option>
+                <option value="F" <?php echo (isset($patient['sexe']) && $patient['sexe'] == 'F') ? 'selected' : ''; ?>>Féminin</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="date_naissance" class="block text-sm font-medium text-gray-700 mb-2">
+                Date de naissance <span class="text-red-500">*</span>
+            </label>
+            <input type="date" id="date_naissance" name="date_naissance" required
+                   value="<?php echo $patient['date_naissance']; ?>"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <div>
+            <label for="adresse" class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+            <textarea id="adresse" name="adresse" rows="2" 
+                      placeholder="Numéro, rue, code postal, ville..."
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"><?php echo isset($patient['adresse']) ? htmlspecialchars($patient['adresse']) : ''; ?></textarea>
+            <p class="mt-1 text-sm text-gray-500">Optionnel</p>
+        </div>
+
+        <div>
+            <label for="telephone" class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+            <input type="tel" id="telephone" name="telephone" 
+                   placeholder="12 34 56 78"
+                   pattern="[0-9]{8}" 
+                   title="Le numéro doit contenir 8 chiffres"
+                   maxlength="8"
+                   value="<?php echo isset($patient['telephone']) ? htmlspecialchars($patient['telephone']) : ''; ?>"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <p class="mt-1 text-sm text-gray-500">Optionnel - 8 chiffres</p>
+        </div>
+
+        <div>
+            <label for="groupe_sanguin" class="block text-sm font-medium text-gray-700 mb-2">Groupe sanguin</label>
+            <select id="groupe_sanguin" name="groupe_sanguin"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Sélectionner un groupe sanguin</option>
+                <option value="A+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'A+') ? 'selected' : ''; ?>>A+</option>
+                <option value="A-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'A-') ? 'selected' : ''; ?>>A-</option>
+                <option value="B+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'B+') ? 'selected' : ''; ?>>B+</option>
+                <option value="B-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'B-') ? 'selected' : ''; ?>>B-</option>
+                <option value="AB+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'AB+') ? 'selected' : ''; ?>>AB+</option>
+                <option value="AB-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'AB-') ? 'selected' : ''; ?>>AB-</option>
+                <option value="O+" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'O+') ? 'selected' : ''; ?>>O+</option>
+                <option value="O-" <?php echo (isset($patient['groupe_sanguin']) && $patient['groupe_sanguin'] == 'O-') ? 'selected' : ''; ?>>O-</option>
+            </select>
+            <p class="mt-1 text-sm text-gray-500">Optionnel</p>
+        </div>
+
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-800 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Les champs marqués d'un <span class="text-red-500 font-semibold">*</span> sont obligatoires.
+            </p>
+        </div>
+
+        <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+            <a href="index.php?controller=patient&action=show&id=<?php echo $patient['id']; ?>" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                <span>Annuler</span>
+            </a>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Mettre à jour</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const telephoneInput = document.getElementById('telephone');
+    if(telephoneInput) {
+        telephoneInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
-    </script>
-</body>
-</html>
+    }
+});
+</script>

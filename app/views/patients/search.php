@@ -12,421 +12,185 @@ $hasCriteria = isset($_GET['nom']) || isset($_GET['prenom']) || isset($_GET['dat
 
 // Vérifier si $patients est un objet valide
 $hasResults = isset($patients) && is_object($patients);
+
+// Préparer les résultats
+$patientsArray = array();
+$patientsCount = 0;
+if($hasResults && $patients) {
+    $patientsCount = $patients->rowCount();
+    while($row = $patients->fetch(\PDO::FETCH_ASSOC)) {
+        $patientsArray[] = $row;
+    }
+}
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recherche de patients</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <style>
-        body { 
-            background-image: url('/projet_medical/app/public/assets/images/background-log.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            padding-bottom: 20px;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+
+<!-- Search Form Card -->
+<div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Recherche de patients</h2>
+    
+    <form action="index.php" method="GET" class="space-y-4">
+        <input type="hidden" name="controller" value="patient">
+        <input type="hidden" name="action" value="search">
         
-        .container {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* PAGE HEADER - BLEU CLAIR */
-        .page-header {
-            background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-            color: white;
-            padding: 25px 30px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 35px rgba(77, 158, 255, 0.3);
-            border: 2px solid #3d8eff;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
-        }
-        
-        .page-header h1 {
-            position: relative;
-            z-index: 2;
-            font-weight: 700;
-            font-size: 2rem;
-        }
-        
-        .page-header p {
-            position: relative;
-            z-index: 2;
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        /* CARTE DE RECHERCHE */
-        .search-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .search-title {
-            color: #212529;
-            font-weight: 600;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #495057;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            padding: 10px 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #4d9eff;
-            box-shadow: 0 0 0 0.25rem rgba(77, 158, 255, 0.25);
-        }
-        
-        .btn-search {
-            background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            float: right;
-        }
-        
-        .btn-search:hover {
-            background: linear-gradient(135deg, #5da6ff, #3c8eff);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(77, 158, 255, 0.4);
-        }
-        
-        /* RÉSULTATS DE RECHERCHE - STYLE TABLEAU */
-        .results-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .table th {
-            background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-            color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 12px 10px;
-            text-align: left;
-        }
-        
-        .table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-        
-        .table tbody tr:hover {
-            background-color: #f8f9ff;
-        }
-        
-        .badge-age {
-            background: linear-gradient(135deg, #6eb5ff, #4d9eff);
-            color: white;
-            font-weight: 500;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .action-buttons .btn {
-            margin: 0;
-            border-radius: 6px;
-            padding: 4px 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .action-buttons .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn-outline-info {
-            border-color: #0dcaf0;
-            color: #0dcaf0;
-        }
-        .btn-outline-info:hover {
-            background-color: #0dcaf0;
-            color: white;
-        }
-        .btn-outline-warning {
-            border-color: #ffc107;
-            color: #ffc107;
-        }
-        .btn-outline-warning:hover {
-            background-color: #ffc107;
-            color: white;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 50px 20px;
-        }
-        
-        .no-results i {
-            font-size: 4rem;
-            color: #cbd5e1;
-            margin-bottom: 20px;
-        }
-        
-        .no-results h3 {
-            color: #6c757d;
-            font-weight: 300;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-        
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #ffffff 0%, #e9ecef 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- En-tête de la page -->
-        <div class="page-header">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <h1 class="mb-0 gradient-text">
-                    <i class="bi bi-search me-2 floating"></i>
-                    Recherche de patients
-                </h1>
-                <p class="mb-0 mt-2">
-                    <i class="bi bi-calendar"></i> 
-                    <?php echo date('d/m/Y'); ?>
-                </p>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                <input type="text" name="nom" 
+                       value="<?php echo isset($_GET['nom']) ? htmlspecialchars($_GET['nom']) : ''; ?>"
+                       placeholder="Ex: DUPONT"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                <input type="text" name="prenom" 
+                       value="<?php echo isset($_GET['prenom']) ? htmlspecialchars($_GET['prenom']) : ''; ?>"
+                       placeholder="Ex: Jean"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance</label>
+                <input type="date" name="date_naissance" 
+                       value="<?php echo isset($_GET['date_naissance']) ? htmlspecialchars($_GET['date_naissance']) : ''; ?>"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
         </div>
+        
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Rechercher</span>
+            </button>
+        </div>
+    </form>
+</div>
 
-        <!-- Formulaire de recherche -->
-        <div class="search-card">
-            <h5 class="search-title">
-                <i class="bi bi-funnel"></i>
-                Critères de recherche
-            </h5>
+<!-- Results Card -->
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <?php if($hasCriteria): ?>
+        <?php if($hasResults && $patientsCount > 0): ?>
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">
+                    Résultats (<?php echo $patientsCount; ?> patient(s) trouvé(s))
+                </h2>
+            </div>
             
-            <form action="index.php" method="GET" class="row g-3">
-                <input type="hidden" name="controller" value="patient">
-                <input type="hidden" name="action" value="search">
-                
-                <div class="col-md-4">
-                    <label class="form-label">Nom</label>
-                    <input type="text" class="form-control" name="nom" 
-                           value="<?php echo isset($_GET['nom']) ? htmlspecialchars($_GET['nom']) : ''; ?>"
-                           placeholder="Ex: DUPONT">
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Prénom</label>
-                    <input type="text" class="form-control" name="prenom" 
-                           value="<?php echo isset($_GET['prenom']) ? htmlspecialchars($_GET['prenom']) : ''; ?>"
-                           placeholder="Ex: Jean">
-                </div>
-                
-                <div class="col-md-4">
-                    <label class="form-label">Date de naissance</label>
-                    <input type="date" class="form-control" name="date_naissance" 
-                           value="<?php echo isset($_GET['date_naissance']) ? htmlspecialchars($_GET['date_naissance']) : ''; ?>">
-                </div>
-                
-                <div class="col-12">
-                    <button type="submit" class="btn-search">
-                        <i class="bi bi-search"></i> Rechercher
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Résultats de la recherche - FORMAT TABLEAU -->
-        <div class="results-container">
-            <?php if($hasCriteria): ?>
-                <?php if($hasResults && $patients->rowCount() > 0): ?>
-                    <h5 class="search-title mb-3">
-                        <i class="bi bi-list-ul"></i>
-                        Résultats (<?php echo $patients->rowCount(); ?> patient(s) trouvé(s))
-                    </h5>
-                    
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>NOM</th>
-                                    <th>PRÉNOM</th>
-                                    <th>SEXE</th>
-                                    <th>NÉ LE</th>
-                                    <th>ÂGE</th>
-                                    <th>TÉLÉPHONE</th>
-                                    <th>ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOM</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">PRÉNOM</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">SEXE</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NÉ LE</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ÂGE</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TÉLÉPHONE</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php 
+                        $i = 1;
+                        foreach($patientsArray as $row): 
+                            // Calcul de l'âge
+                            $age = 'N/A';
+                            if(!empty($row['date_naissance'])) {
+                                try {
+                                    $birthDate = new DateTime($row['date_naissance']);
+                                    $today = new DateTime();
+                                    $age = $birthDate->diff($today)->y;
+                                } catch(Exception $e) {
+                                    $age = 'Date invalide';
+                                }
+                            }
+                            
+                            // Formatage du téléphone
+                            $tel = !empty($row['telephone']) ? $row['telephone'] : '';
+                            $telFormate = '';
+                            if(strlen($tel) == 8) {
+                                $telFormate = substr($tel, 0, 2) . ' ' . 
+                                             substr($tel, 2, 2) . ' ' . 
+                                             substr($tel, 4, 2) . ' ' . 
+                                             substr($tel, 6, 2);
+                            } else {
+                                $telFormate = $tel;
+                            }
+                        ?>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $i++; ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900"><?php echo htmlspecialchars(strtoupper($row['nom'])); ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo htmlspecialchars(ucfirst(strtolower($row['prenom']))); ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 <?php 
-                                $i = 1;
-                                while($row = $patients->fetch(PDO::FETCH_ASSOC)): 
-                                    // Calcul de l'âge
-                                    $age = 'N/A';
-                                    if(!empty($row['date_naissance'])) {
-                                        try {
-                                            $birthDate = new DateTime($row['date_naissance']);
-                                            $today = new DateTime();
-                                            $age = $birthDate->diff($today)->y;
-                                        } catch(Exception $e) {
-                                            $age = 'Date invalide';
-                                        }
-                                    }
-                                    
-                                    // Formatage du téléphone
-                                    $tel = !empty($row['telephone']) ? $row['telephone'] : '';
-                                    $telFormate = '';
-                                    if(strlen($tel) == 8) {
-                                        $telFormate = substr($tel, 0, 2) . ' ' . 
-                                                     substr($tel, 2, 2) . ' ' . 
-                                                     substr($tel, 4, 2) . ' ' . 
-                                                     substr($tel, 6, 2);
-                                    } else {
-                                        $telFormate = $tel;
-                                    }
+                                if(!empty($row['sexe'])) {
+                                    echo ($row['sexe'] == 'M') ? 'M' : 'F';
+                                } else {
+                                    echo '-';
+                                }
                                 ?>
-                                <tr>
-                                    <td><?php echo $i++; ?></td>
-                                    <td><strong><?php echo htmlspecialchars(strtoupper($row['nom'])); ?></strong></td>
-                                    <td><?php echo htmlspecialchars(ucfirst(strtolower($row['prenom']))); ?></td>
-                                    <td>
-                                        <?php 
-                                        if(!empty($row['sexe'])) {
-                                            echo ($row['sexe'] == 'M') ? 'M' : 'F';
-                                        } else {
-                                            echo '-';
-                                        }
-                                        ?>
-                                    </td>
-                                    <td><?php echo date('d/m/Y', strtotime($row['date_naissance'])); ?></td>
-                                    <td><span class="badge-age"><?php echo $age; ?> ans</span></td>
-                                    <td>
-                                        <?php if(!empty($row['telephone'])): ?>
-                                            <?php echo $telFormate; ?>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="action-buttons">
-                                        <!-- Bouton VOIR - dossier médical -->
-                                        <a href="index.php?controller=patient&action=show&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-outline-info" 
-                                           title="Voir dossier médical">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        
-                                        <!-- Bouton MODIFIER - pour Admin, Médecin et Major -->
-                                        <?php if($userRole === 'admin' || $userRole === 'medecin' || $userRole === 'major'): ?>
-                                        <a href="index.php?controller=patient&action=edit&id=<?php echo $row['id']; ?>" 
-                                           class="btn btn-sm btn-outline-warning" 
-                                           title="Modifier">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                <?php elseif($hasResults && $patients->rowCount() == 0): ?>
-                    <div class="no-results">
-                        <i class="bi bi-emoji-frown"></i>
-                        <h3>Aucun résultat</h3>
-                        <p class="text-muted">Aucun patient ne correspond à vos critères de recherche.</p>
-                    </div>
-                <?php endif; ?>
-                
-            <?php else: ?>
-                <div class="no-results">
-                    <i class="bi bi-search"></i>
-                    <h3>Recherchez des patients</h3>
-                    <p class="text-muted">Utilisez le formulaire ci-dessus pour rechercher des patients.</p>
-                </div>
-            <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700"><?php echo !empty($row['date_naissance']) ? date('d/m/Y', strtotime($row['date_naissance'])) : '-'; ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <?php echo $age; ?> ans
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <?php if(!empty($row['telephone'])): ?>
+                                    <?php echo $telFormate; ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="flex items-center space-x-2">
+                                    <a href="index.php?controller=patient&action=show&id=<?php echo $row['id']; ?>" 
+                                       class="text-blue-600 hover:text-blue-800 font-medium" 
+                                       title="Voir dossier médical">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                    
+                                    <?php if($userRole === 'admin' || $userRole === 'medecin' || $userRole === 'major'): ?>
+                                    <a href="index.php?controller=patient&action=edit&id=<?php echo $row['id']; ?>" 
+                                       class="text-yellow-600 hover:text-yellow-800" 
+                                       title="Modifier">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            
+        <?php elseif($hasResults && $patientsCount == 0): ?>
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucun résultat</h3>
+                <p class="text-gray-500">Aucun patient ne correspond à vos critères de recherche.</p>
+            </div>
+        <?php endif; ?>
+        
+    <?php else: ?>
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Recherchez des patients</h3>
+            <p class="text-gray-500">Utilisez le formulaire ci-dessus pour rechercher des patients.</p>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        setTimeout(function() {
-            document.querySelectorAll('.alert').forEach(function(alert) {
-                let bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-    </script>
-</body>
-</html>
+    <?php endif; ?>
+</div>

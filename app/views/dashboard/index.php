@@ -1,393 +1,12 @@
-<?php require_once dirname(__DIR__) . '/partials/dashboard_header.php'; ?>
-
-<div class="container-fluid">
-    <!-- En-tête du dashboard -->
-    <div class="page-header mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="display-6 fw-bold text-primary">
-                    <i class="bi bi-speedometer2 me-3"></i>
-                    Tableau de Bord Médical
-                </h1>
-                <p class="text-muted mb-0">
-                    Vue d'ensemble de l'activité hospitalière
-                </p>
-            </div>
-            <div class="col-auto">
-                <div class="d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm">
-                    <div class="me-3 text-center">
-                        <small class="text-muted d-block">Date</small>
-                        <strong class="text-primary"><?php echo date('d/m/Y'); ?></strong>
-                    </div>
-                    <div class="text-center">
-                        <small class="text-muted d-block">Heure</small>
-                        <strong class="text-primary" id="live-time"><?php echo date('H:i'); ?></strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cartes de statistiques -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="stats-card patients-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-muted mb-1">Patients</h6>
-                            <h2 class="mb-0 fw-bold text-primary"><?php echo $stats['total_patients']; ?></h2>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i> Total enregistrés
-                            </small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="stats-card soins-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-muted mb-1">Soins Total</h6>
-                            <h2 class="mb-0 fw-bold text-info"><?php echo $stats['total_soins']; ?></h2>
-                            <small class="text-info">
-                                <i class="bi bi-activity"></i> Depuis le début
-                            </small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="bi bi-heart-pulse-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="stats-card today-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-muted mb-1">Aujourd'hui</h6>
-                            <h2 class="mb-0 fw-bold text-warning"><?php echo $stats['soins_aujourdhui']; ?></h2>
-                            <small class="text-warning">
-                                <i class="bi bi-calendar-check"></i> Soins planifiés
-                            </small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="bi bi-calendar-date-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="stats-card status-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-muted mb-1">En Cours</h6>
-                            <h2 class="mb-0 fw-bold text-success"><?php echo $stats['soins_en_cours']; ?></h2>
-                            <small class="text-success">
-                                <i class="bi bi-play-circle"></i> Actuellement
-                            </small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="bi bi-clock-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Graphiques et tableaux -->
-    <div class="row">
-        <!-- Graphique des soins par mois -->
-        <div class="col-lg-8 mb-4">
-            <div class="chart-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-graph-up me-2"></i>
-                        Évolution des Soins
-                    </h5>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary active" data-period="month">Mois</button>
-                        <button type="button" class="btn btn-outline-primary" data-period="week">Semaine</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="soinsChart" height="100"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Répartition par statut -->
-        <div class="col-lg-4 mb-4">
-            <div class="chart-card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-pie-chart me-2"></i>
-                        Statut des Soins
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Soins du jour -->
-    <div class="row">
-        <div class="col-12">
-            <div class="today-care-card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-list-check me-2"></i>
-                        Planning du Jour
-                    </h5>
-                    <span class="badge bg-primary rounded-pill"><?php echo count($soinsAujourdhui); ?> soins</span>
-                </div>
-                <div class="card-body p-0">
-                    <?php if(!empty($soinsAujourdhui)): ?>
-                    <div class="today-care-list">
-                        <?php foreach($soinsAujourdhui as $soin): ?>
-                        <div class="care-item d-flex align-items-center p-3 border-bottom">
-                            <div class="care-time me-3">
-                                <div class="time-badge">
-                                    <?php echo date('H:i', strtotime($soin['heure_soin'])); ?>
-                                </div>
-                            </div>
-                            <div class="care-info flex-grow-1">
-                                <h6 class="mb-1"><?php echo htmlspecialchars($soin['type_soin']); ?></h6>
-                                <p class="mb-0 text-muted">
-                                    <i class="bi bi-person me-1"></i>
-                                    <?php echo htmlspecialchars($soin['patient_nom'] . ' ' . $soin['patient_prenom']); ?>
-                                    <span class="mx-2">•</span>
-                                    <i class="bi bi-heart-pulse me-1"></i>
-                                    Lit <?php echo htmlspecialchars($soin['numero_lit']); ?>
-                                </p>
-                            </div>
-                            <div class="care-status">
-                                <span class="badge bg-<?php echo getStatusColor($soin['statut']); ?>">
-                                    <?php echo getStatusLabel($soin['statut']); ?>
-                                </span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php else: ?>
-                    <div class="text-center py-5">
-                        <i class="bi bi-calendar-x display-1 text-muted"></i>
-                        <p class="text-muted mt-3">Aucun soin planifié pour aujourd'hui</p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Scripts pour les graphiques -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Graphique des soins par mois
-    const soinsCtx = document.getElementById('soinsChart').getContext('2d');
-    const soinsChart = new Chart(soinsCtx, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode(array_column($soinsParMois, 'mois')); ?>,
-            datasets: [{
-                label: 'Soins par mois',
-                data: <?php echo json_encode(array_column($soinsParMois, 'nombre')); ?>,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Graphique en camembert des statuts
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    const statusChart = new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode(array_column($soinsParStatut, 'statut')); ?>,
-            datasets: [{
-                data: <?php echo json_encode(array_column($soinsParStatut, 'nombre')); ?>,
-                backgroundColor: [
-                    '#ffc107', // planifie
-                    '#17a2b8', // en_cours
-                    '#28a745', // effectue
-                    '#dc3545'  // annule
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-
-    // Horloge en direct
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('live-time').textContent = 
-            now.getHours().toString().padStart(2, '0') + ':' + 
-            now.getMinutes().toString().padStart(2, '0');
-    }
-    setInterval(updateClock, 1000);
-});
-</script>
-
-<style>
-/* Styles spécifiques au dashboard */
-.dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 20px;
-    margin-bottom: 2rem;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-.stats-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    height: 100%;
-}
-
-.stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-}
-
-.stats-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-}
-
-.patients-card .stats-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.soins-card .stats-icon {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.today-card .stats-icon {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.status-card .stats-icon {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.chart-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    height: 100%;
-}
-
-.today-care-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.today-care-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.care-item {
-    transition: all 0.3s ease;
-}
-
-.care-item:hover {
-    background-color: #f8f9fa;
-}
-
-.time-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.live-clock {
-    background: rgba(255,255,255,0.2);
-    padding: 1rem;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.stats-card, .chart-card, .today-care-card {
-    animation: fadeInUp 0.6s ease-out;
-}
-</style>
-
 <?php
 // Helper functions for status display
 function getStatusColor($status) {
     switch($status) {
-        case 'planifie': return 'warning';
-        case 'en_cours': return 'info';
-        case 'effectue': return 'success';
-        case 'annule': return 'danger';
-        default: return 'secondary';
+        case 'planifie': return 'bg-yellow-100 text-yellow-800';
+        case 'en_cours': return 'bg-blue-100 text-blue-800';
+        case 'effectue': return 'bg-green-100 text-green-800';
+        case 'annule': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
     }
 }
 
@@ -402,4 +21,209 @@ function getStatusLabel($status) {
 }
 ?>
 
-<?php require_once dirname(__DIR__) . '/partials/dashboard_footer.php'; ?>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Patients Card -->
+    <div class="card-gradient-purple rounded-2xl p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-white bg-opacity-50 rounded-full p-3">
+                <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="text-sm font-medium text-gray-700 mb-1">Total Patients</div>
+        <div class="text-3xl font-bold text-gray-900"><?php echo isset($stats['total_patients']) ? $stats['total_patients'] : 0; ?></div>
+        <div class="text-xs text-gray-600 mt-1">Total enregistrés</div>
+    </div>
+
+    <!-- Soins Total Card -->
+    <div class="card-gradient-green rounded-2xl p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-white bg-opacity-50 rounded-full p-3">
+                <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="text-sm font-medium text-gray-700 mb-1">Soins Total</div>
+        <div class="text-3xl font-bold text-gray-900"><?php echo isset($stats['total_soins']) ? $stats['total_soins'] : 0; ?></div>
+        <div class="text-xs text-gray-600 mt-1">Depuis le début</div>
+    </div>
+
+    <!-- Today's Appointments Card -->
+    <div class="card-gradient-blue-green rounded-2xl p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-white bg-opacity-50 rounded-full p-3">
+                <svg class="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="text-sm font-medium text-gray-700 mb-1">Aujourd'hui</div>
+        <div class="text-3xl font-bold text-gray-900"><?php echo isset($stats['soins_aujourdhui']) ? $stats['soins_aujourdhui'] : 0; ?></div>
+        <div class="text-xs text-gray-600 mt-1">Soins planifiés</div>
+    </div>
+
+    <!-- En Cours Card -->
+    <div class="card-gradient-pink rounded-2xl p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="bg-white bg-opacity-50 rounded-full p-3">
+                <svg class="w-6 h-6 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="text-sm font-medium text-gray-700 mb-1">En Cours</div>
+        <div class="text-3xl font-bold text-gray-900"><?php echo isset($stats['soins_en_cours']) ? $stats['soins_en_cours'] : 0; ?></div>
+        <div class="text-xs text-gray-600 mt-1">Actuellement</div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Graphique des soins par mois -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Évolution des Soins</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">Mois</button>
+                <button class="px-3 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg">Semaine</button>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="soinsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Répartition par statut -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Statut des Soins</h3>
+        <div class="h-64">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Planning du Jour -->
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-900">Planning du Jour</h3>
+        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+            <?php echo isset($soinsAujourdhui) ? count($soinsAujourdhui) : 0; ?> soins
+        </span>
+    </div>
+    <div class="max-h-96 overflow-y-auto">
+        <?php if(!empty($soinsAujourdhui)): ?>
+            <?php foreach($soinsAujourdhui as $soin): ?>
+            <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                        <?php echo date('H:i', strtotime($soin['heure_soin'])); ?>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-1"><?php echo htmlspecialchars($soin['type_soin']); ?></h4>
+                    <p class="text-sm text-gray-600">
+                        <span class="inline-flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <?php echo htmlspecialchars($soin['patient_nom'] . ' ' . $soin['patient_prenom']); ?>
+                        </span>
+                        <span class="mx-2">•</span>
+                        <span class="inline-flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            Lit <?php echo htmlspecialchars($soin['numero_lit']); ?>
+                        </span>
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full <?php echo getStatusColor($soin['statut']); ?>">
+                        <?php echo getStatusLabel($soin['statut']); ?>
+                    </span>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <p class="text-gray-500 mt-3">Aucun soin planifié pour aujourd'hui</p>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Scripts pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique des soins par mois
+    const soinsCtx = document.getElementById('soinsChart');
+    if(soinsCtx) {
+        const soinsChart = new Chart(soinsCtx, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode(array_column($soinsParMois ?? [], 'mois')); ?>,
+                datasets: [{
+                    label: 'Soins par mois',
+                    data: <?php echo json_encode(array_column($soinsParMois ?? [], 'nombre')); ?>,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Graphique en camembert des statuts
+    const statusCtx = document.getElementById('statusChart');
+    if(statusCtx) {
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <?php echo json_encode(array_column($soinsParStatut ?? [], 'statut')); ?>,
+                datasets: [{
+                    data: <?php echo json_encode(array_column($soinsParStatut ?? [], 'nombre')); ?>,
+                    backgroundColor: [
+                        '#fbbf24', // planifie - yellow
+                        '#3b82f6', // en_cours - blue
+                        '#10b981', // effectue - green
+                        '#ef4444'  // annule - red
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
